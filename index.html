@@ -1,11 +1,545 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Breadboard Trainer with power source</title>
+  <link rel="icon" type="image/png" href="Khwaja_Moinuddin_Chishti_Language_University_logo.png" />
+  <style>
+    :root {
+      --bg-color: #f5f7fa;
+      --text-color: #333;
+      --header-bg: #283593;
+      --main-bg: #ffffff;
+      --border-color: #ddd;
+      --hover-bg: #f0f4ff;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #1a1a1a;
+      --text-color: #e0e0e0;
+      --header-bg: #1e1e2e;
+      --main-bg: #2d2d2d;
+      --border-color: #444;
+      --hover-bg: #3a3a3a;
+      --shadow: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg-color);
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .controls {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .theme-toggle, .lang-select {
+      background: var(--main-bg);
+      color: var(--text-color);
+      border: 2px solid var(--border-color);
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover, .lang-select:hover {
+      background: var(--hover-bg);
+    }
+
+    header {
+      background-color: var(--header-bg);
+      color: white;
+      padding: 20px 20px 20px 100px;
+      text-align: center;
+      position: relative;
+      animation: slideInDown 1s ease;
+    }
+
+    header img.logo {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      height: 80px;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 2em;
+      background-color: var(--main-bg);
+      animation: fadeIn 1.5s ease-in;
+      border-radius: 10px;
+      margin-top: 20px;
+      box-shadow: 0 4px 10px var(--shadow);
+    }
+
+    .image-animated {
+      display: block;
+      max-width: 90%;
+      margin: 30px auto;
+      border-radius: 10px;
+      border: 4px solid var(--border-color);
+      box-shadow: 0 4px 12px var(--shadow);
+      animation: fadeInImage 2s ease-in-out;
+    }
+
+    h2 {
+      color: #1a237e;
+      margin-top: 40px;
+    }
+
+    [data-theme="dark"] h2 {
+      color: #7986cb;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 10px 0;
+      transition: background-color 0.3s ease;
+    }
+
+    li:hover {
+      background-color: var(--hover-bg);
+      padding-left: 5px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: var(--header-bg);
+      color: white;
+      margin-top: 40px;
+    }
+
+    footer a {
+      color: #7986cb;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .lang-hidden {
+      display: none;
+    }
+
+    @keyframes fadeInImage {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideInDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      
+      const button = document.querySelector('.theme-toggle');
+      button.textContent = newTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+    }
+
+    function changeLanguage(lang) {
+      // Hide all language elements
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        el.classList.add('lang-hidden');
+      });
+      
+      // Show selected language elements
+      document.querySelectorAll(`[data-lang="${lang}"]`).forEach(el => {
+        el.classList.remove('lang-hidden');
+      });
+      
+      // Update document language
+      document.documentElement.lang = lang;
+      localStorage.setItem('language', lang);
+    }
+
+    // Initialize theme and language on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      const savedLang = localStorage.getItem('language') || 'en';
+      
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      const themeButton = document.querySelector('.theme-toggle');
+      themeButton.textContent = savedTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+      
+      changeLanguage(savedLang);
+      document.querySelector('.lang-select').value = savedLang;
+    });
+  </script>
 </head>
 <body>
+
+<div class="controls">
+  <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+  <select class="lang-select" onchange="changeLanguage(this.value)">
+    <option value="en">English</option>
+    <option value="hi">हिंदी</option>
+    <option value="ur">اردو</option>
+  </select>
+</div>
+
+<header>
+  <p data-lang="en">Khwaja Moinuddin Chishti Language University</p>
+  <p data-lang="hi" class="lang-hidden">ख्वाजा मोइनुद्दीन चिश्ती भाषा विश्वविद्यालय</p>
+  <p data-lang="ur" class="lang-hidden">خواجہ معین الدین چشتی لینگویج یونیورسٹی</p>
+  <img src="Khwaja_Moinuddin_Chishti_Language_University_logo.png" alt="University Logo" class="logo">
+  <h1 data-lang="en">Breadboard Trainer with Power Source/Supplies (General Purpose)</h1>
+<h1 data-lang="hi" class="lang-hidden">पावर स्रोत/सप्लाई (सामान्य प्रयोजन) के साथ ब्रेडबोर्ड ट्रेनर</h1>
+<h1 data-lang="ur" class="lang-hidden">بریڈ بورڈ ٹرینر پاور سورس/سپلائیز (جنرل پرپز) کے ساتھ</h1>
+
+
+</header>
+
+<main>
+  <img class="image-animated" src="Bread-board-station.jpg" alt="Breadboard Trainer with Power Source/Supplies (General Purpose) Image">
+
+  <section>
+    <h2 data-lang="en">Overview</h2>
+    <h2 data-lang="hi" class="lang-hidden">सारांश</h2>
+    <h2 data-lang="ur" class="lang-hidden">جائزہ</h2>
+<p data-lang="en">
+  The ME 1150 Trainer is a compact lab‑grade breadboarding unit designed for educational use in electronics and
+  engineering workshops. It combines a solderless breadboard mounted on a rigid chassis with a built‑in regulated power
+  supply, making it ideal for prototyping TTL/CMOS, analog, and microcontroller circuits without external adapters.
+</p>
+
+
+<p data-lang="hi" class="lang-hidden">
+  ME 1150 ट्रेनर एक कॉम्पैक्ट लैब-ग्रेड ब्रेडबोर्डिंग यूनिट है जिसे इलेक्ट्रॉनिक्स और इंजीनियरिंग वर्कशॉप में शैक्षिक उपयोग के लिए डिज़ाइन किया गया है।
+  इसमें एक सॉल्डरलेस ब्रेडबोर्ड होता है जो एक ठोस चेसिस पर माउंट किया गया है और एक इनबिल्ट रेगुलेटेड पावर सप्लाई होती है, जिससे TTL/CMOS, एनालॉग और
+  माइक्रोकंट्रोलर सर्किट को बिना किसी बाहरी एडॉप्टर के आसानी से प्रोटोटाइप किया जा सकता है।
+</p>
+
+
+<p data-lang="ur" class="lang-hidden">
+  ME 1150 ٹرینر ایک کمپیکٹ لیب گریڈ بریڈ بورڈنگ یونٹ ہے جو الیکٹرانکس اور انجینئرنگ ورکشاپس میں تعلیمی استعمال کے لیے ڈیزائن کیا گیا ہے۔
+  اس میں ایک سولڈر لیس بریڈ بورڈ ایک مضبوط چیسس پر نصب ہوتی ہے، اور اس کے ساتھ ایک بلٹ اِن ریگولیٹڈ پاور سپلائی ہوتی ہے، جو اسے TTL/CMOS،
+  اینالاگ، اور مائیکروکنٹرولر سرکٹس کے لیے بغیر کسی بیرونی اڈاپٹر کے پروٹوٹائپ بنانے کے لیے مثالی بناتی ہے۔
+</p>
+
+  </section>
+
+  <section>
+   <h2 data-lang="en">Components & Specifications</h2>
+   <h2 data-lang="hi" class="lang-hidden">घटक और विनिर्देश</h2>
+   <h2 data-lang="ur" class="lang-hidden">اجزاء اور وضاحتیں</h2>
+
+<ul data-lang="en">
+  <li><strong>Solderless Breadboard:</strong> Typically ~850–1260 tie‑points supporting DIP ICs and discrete components.</li>
+  <li><strong>Power Supply Outputs:</strong> +5 V @ 500 mA and +12 V @ 250 mA (regulated), built-in short‑circuit protection.</li>
+  <li><strong>Input Power:</strong> AC mains 230 VAC / 50 Hz (or 110 VAC versions available), fused input stage.</li>
+  <li><strong>Indicators:</strong> LEDs for power ON and fault condition (overload/short-circuit).</li>
+  <li><strong>Panel Elements:</strong> Binding posts for supply rails, grounding terminal, probe points for measurements.</li>
+  <li><strong>Dimensions & Build:</strong> Typically ~270 × 170 × 30 mm; metal/plastic front panel on rigid base.</li>
+</ul>
+
+
+<ul data-lang="hi" class="lang-hidden">
+  <li><strong>सोल्डरलेस ब्रेडबोर्ड:</strong> सामान्यतः ~850–1260 टाई-पॉइंट्स, जो DIP ICs और डिस्क्रीट कंपोनेंट्स को सपोर्ट करता है।</li>
+  <li><strong>पावर सप्लाई आउटपुट:</strong> +5 V @ 500 mA और +12 V @ 250 mA (नियंत्रित), इनबिल्ट शॉर्ट-सर्किट सुरक्षा के साथ।</li>
+  <li><strong>इनपुट पावर:</strong> एसी मेन्स 230 VAC / 50 Hz (या 110 VAC संस्करण उपलब्ध), फ्यूज प्रोटेक्टेड इनपुट स्टेज।</li>
+  <li><strong>संकेतक:</strong> पावर चालू और फॉल्ट स्थिति (ओवरलोड/शॉर्ट-सर्किट) के लिए एलईडी।</li>
+  <li><strong>पैनल एलिमेंट्स:</strong> सप्लाई रेल के लिए बाइंडिंग पोस्ट, ग्राउंडिंग टर्मिनल, मापन के लिए प्रोब पॉइंट्स।</li>
+  <li><strong>आकार और निर्माण:</strong> सामान्यतः ~270 × 170 × 30 mm; कठोर बेस पर धातु/प्लास्टिक का फ्रंट पैनल।</li>
+</ul>
+
+
+<ul data-lang="ur" class="lang-hidden">
+  <li><strong>سولڈرلیس بریڈ بورڈ:</strong> عام طور پر ~850–1260 ٹائی پوائنٹس، جو DIP ICs اور علیحدہ اجزاء کی حمایت کرتا ہے۔</li>
+  <li><strong>پاور سپلائی آؤٹ پٹس:</strong> +5 V @ 500 mA اور +12 V @ 250 mA (ریگولیٹڈ)، اندرونی شارٹ سرکٹ تحفظ کے ساتھ۔</li>
+  <li><strong>ان پٹ پاور:</strong> اے سی مین 230 VAC / 50 Hz (یا 110 VAC ورژن دستیاب)، فیوزڈ ان پٹ اسٹیج۔</li>
+  <li><strong>اشارے:</strong> ایل ای ڈی لائٹس پاور آن اور خرابی (اوورلوڈ/شارٹ سرکٹ) کی حالت ظاہر کرتی ہیں۔</li>
+  <li><strong>پینل عناصر:</strong> سپلائی ریلز کے لیے بائنڈنگ پوسٹس، گراؤنڈنگ ٹرمینل، پیمائش کے لیے پروب پوائنٹس۔</li>
+  <li><strong>ابعاد اور ساخت:</strong> عمومی طور پر ~270 × 170 × 30 ملی میٹر؛ سخت بنیاد پر دھات/پلاسٹک کا فرنٹ پینل۔</li>
+</ul>
+
+  </section>
+
+  <section>
+    <h2 data-lang="en">Setup & Power Supply</h2>
+<ul data-lang="en">
+    <h2 data-lang="hi" class="lang-hidden">सेटअप और पावर सप्लाई</h2>
+    <h2 data-lang="ur" class="lang-hidden">سیٹ اپ اور پاور سپلائی</h2>
+
+  <li>Place the trainer on a stable desk in a well‑ventilated space.</li>
+  <li>Connect to mains via insulated cord; ensure correct fuse rating.</li>
+  <li>Turn on power; verify that the +5 V and +12 V LEDs light up.</li>
+  <li>Measure the voltage rails with a multimeter to check regulation.</li>
+  <li>If rails exceed tolerances (> ±0.5 %), power off and consult technical manual.</li>
+</ul>
+
+
+<ul data-lang="hi" class="lang-hidden">
+  <li>ट्रेनर को एक स्थिर डेस्क पर अच्छी हवादार जगह में रखें।</li>
+  <li>इंसुलेटेड कॉर्ड से मेन पावर से कनेक्ट करें; सही फ्यूज रेटिंग सुनिश्चित करें।</li>
+  <li>पावर चालू करें; जांचें कि +5V और +12V की LEDs जल रही हों।</li>
+  <li>वोल्टेज रेल की रेगुलेशन की जांच के लिए मल्टीमीटर से मापें।</li>
+  <li>अगर वोल्टेज सहनशीलता से अधिक है (> ±0.5%), तुरंत पावर बंद करें और तकनीकी मैनुअल देखें।</li>
+</ul>
+
+
+<ul data-lang="ur" class="lang-hidden">
+  <li>ٹرینر کو مستحکم میز پر اور اچھی ہوادار جگہ پر رکھیں۔</li>
+  <li>انسولیٹڈ کورڈ کے ذریعے مین پاور سے کنیکٹ کریں؛ درست فیوز ریٹنگ کا خیال رکھیں۔</li>
+  <li>پاور آن کریں؛ تصدیق کریں کہ +5V اور +12V کی ایل ای ڈی لائٹس روشن ہوں۔</li>
+  <li>ملٹی میٹر سے وولٹیج ریل کی پیمائش کریں تاکہ ریگولیشن کی جانچ ہو سکے۔</li>
+  <li>اگر وولٹیج ±0.5% سے زیادہ ہو، تو فوراً پاور بند کریں اور ٹیکنیکل مینول سے رجوع کریں۔</li>
+</ul>
+<p data-lang="en">
+  <strong>Performance note:</strong> These bench trainers are ideal for developing analog and digital circuits, and they avoid the noise and instability issues of improvised USB or wall‑adapter supplies.
+</p>
+
+<p data-lang="hi" class="lang-hidden">
+  <strong>प्रदर्शन नोट:</strong> ये बेंच ट्रेनर एनालॉग और डिजिटल सर्किट विकसित करने के लिए आदर्श हैं, और ये अस्थायी USB या वॉल-अडैप्टर पावर सप्लाई से होने वाले शोर और अस्थिरता की समस्याओं से बचाते हैं।
+</p>
+
+<p data-lang="ur" class="lang-hidden">
+  <strong>کارکردگی نوٹ:</strong> یہ بینچ ٹرینرز اینالاگ اور ڈیجیٹل سرکٹس تیار کرنے کے لیے مثالی ہیں، اور یہ عارضی USB یا وال اڈاپٹر سپلائیز کی شور اور غیر مستحکم مسائل سے بچاتے ہیں۔
+</p>
+
+
+  </section>
+
+  <section>
+    <h2 data-lang="en">Sample Experiments</h2>
+<ul data-lang="en">
+    <h2 data-lang="hi" class="lang-hidden">नमूना प्रयोग</h2>
+    <h2 data-lang="ur" class="lang-hidden">نمونہ تجربات</h2>
+
+  <li>Logic gate tests: AND, OR, NOT, XOR with push-button inputs and LED indicators.</li>
+  <li>Resistor-capacitor timers using 555 timer ICs.</li>
+  <li>Bipolar OP‑AMP circuits: inverting, non-inverting, comparator modes.</li>
+  <li>Digital counters, display drivers, microcontroller breadboarding.</li>
+</ul>
+
+
+<ul data-lang="hi" class="lang-hidden">
+  <li>लॉजिक गेट परीक्षण: AND, OR, NOT, XOR बटन इनपुट और LED संकेतकों के साथ।</li>
+  <li>555 टाइमर IC का उपयोग करके रेसिस्टर-कैपेसिटर टाइमर।</li>
+  <li>बाइपोलर OP-AMP सर्किट: इनवर्टिंग, नॉन-इनवर्टिंग, कम्पेरेटर मोड।</li>
+  <li>डिजिटल काउंटर, डिस्प्ले ड्राइवर, माइक्रोकंट्रोलर ब्रेडबोर्डिंग।</li>
+</ul>
+
+
+<ul data-lang="ur" class="lang-hidden">
+  <li>لاجک گیٹ ٹیسٹ: AND، OR، NOT، XOR پش بٹن ان پٹ اور LED انڈیکیٹر کے ساتھ۔</li>
+  <li>555 ٹائمر ICs کے ساتھ ریزسٹر-کیپیسٹر ٹائمر۔</li>
+  <li>بائپولر OP-AMP سرکٹس: اِنورٹنگ، نان اِنورٹنگ، کمپیریٹر موڈز۔</li>
+  <li>ڈیجیٹل کاؤنٹرز، ڈسپلے ڈرائیورز، مائیکروکنٹرولر بریڈبورڈنگ۔</li>
+</ul>
+
     
+  </section>
+
+  <section>
+    <h2 data-lang="en">Safety Precautions</h2>
+<ul data-lang="en">
+    <h2 data-lang="hi" class="lang-hidden">सुरक्षा सावधानियाँ</h2>
+    <h2 data-lang="ur" class="lang-hidden">حفاظتی احتیاطی تدابیر</h2>
+
+
+  <li>Turn off power before inserting or removing components.</li>
+  <li>Avoid shorting the power rails—use fused prototyping leads.</li>
+  <li>Ensure proper grounding; keep liquids away from the power section.</li>
+  <li>Supervise student use to avoid overloads on ICs and wires.</li>
+</ul>
+
+
+<ul data-lang="hi" class="lang-hidden">
+  <li>कंपोनेंट्स को जोड़ने या हटाने से पहले पावर बंद करें।</li>
+  <li>पावर रेल को शॉर्ट करने से बचें—फ्यूज प्रोटोटाइपिंग लीड्स का उपयोग करें।</li>
+  <li>उचित ग्राउंडिंग सुनिश्चित करें; पावर सेक्शन से तरल पदार्थ दूर रखें।</li>
+  <li>आईसी और तारों पर ओवरलोड से बचने के लिए छात्रों की निगरानी करें।</li>
+</ul>
+
+
+<ul data-lang="ur" class="lang-hidden">
+  <li>اجزاء کو لگانے یا نکالنے سے پہلے پاور بند کریں۔</li>
+  <li>پاور ریل کو شارٹ ہونے سے بچائیں—فیوز شدہ پروٹو ٹائپنگ لیڈز استعمال کریں۔</li>
+  <li>درست گراؤنڈنگ کو یقینی بنائیں؛ پاور سیکشن سے مائع دور رکھیں۔</li>
+  <li>طلباء کے استعمال کی نگرانی کریں تاکہ ICs اور وائرز پر اوورلوڈ نہ ہو۔</li>
+</ul>
+
+  </section>
+
+  <section>
+    <h2 data-lang="en">Applications</h2>
+<ul data-lang="en">
+    <h2 data-lang="hi" class="lang-hidden">अनुप्रयोग</h2>
+    <h2 data-lang="ur" class="lang-hidden">درخواستیں</h2>
+
+  <li><strong>Basic Electronics Training:</strong> Ideal for teaching Ohm’s law, Kirchhoff’s laws, and series-parallel circuit analysis.</li>
+  <li><strong>Digital Circuit Prototyping:</strong> Used to build and test logic gates, flip-flops, counters, and multiplexers.</li>
+  <li><strong>Analog Circuit Experiments:</strong> Includes amplifier design, active filters, timers, oscillators, and signal conditioning circuits.</li>
+  <li><strong>Microcontroller Projects:</strong> Acts as a base platform for Arduino, 8051, or AVR microcontroller breadboard testing.</li>
+  <li><strong>Embedded Systems Learning:</strong> Can interface with sensors, displays, and actuators for embedded circuit design practice.</li>
+  <li><strong>STEM Education & Workshops:</strong> Used in schools, engineering colleges, polytechnics, and hobby clubs for hands-on learning.</li>
+</ul>
+
+
+<ul data-lang="hi" class="lang-hidden">
+  <li><strong>बेसिक इलेक्ट्रॉनिक्स प्रशिक्षण:</strong> ओम का नियम, किर्चहॉफ के नियम, और सीरीज-पैरेलल सर्किट विश्लेषण सिखाने के लिए उपयुक्त।</li>
+  <li><strong>डिजिटल सर्किट प्रोटोटाइपिंग:</strong> लॉजिक गेट्स, फ्लिप-फ्लॉप्स, काउंटर और मल्टीप्लेक्सर बनाने और परीक्षण करने में उपयोगी।</li>
+  <li><strong>एनालॉग सर्किट प्रयोग:</strong> एम्प्लीफायर डिजाइन, एक्टिव फिल्टर्स, टाइमर, ऑस्सीलेटर और सिग्नल कंडीशनिंग सर्किट शामिल हैं।</li>
+  <li><strong>माइक्रोकंट्रोलर प्रोजेक्ट्स:</strong> Arduino, 8051, या AVR माइक्रोकंट्रोलर ब्रेडबोर्ड परीक्षण के लिए एक आधार प्लेटफॉर्म के रूप में कार्य करता है।</li>
+  <li><strong>एम्बेडेड सिस्टम्स लर्निंग:</strong> सेंसर, डिस्प्ले और एक्ट्यूएटर्स के साथ इंटरफेस करने में सक्षम, जिससे एम्बेडेड सर्किट डिज़ाइन का अभ्यास किया जा सकता है।</li>
+  <li><strong>STEM शिक्षा और कार्यशालाएं:</strong> स्कूलों, इंजीनियरिंग कॉलेजों, पॉलिटेक्निक और हॉबी क्लबों में प्रैक्टिकल लर्निंग के लिए उपयोगी।</li>
+</ul>
+
+
+<ul data-lang="ur" class="lang-hidden">
+  <li><strong>بنیادی الیکٹرانکس کی تربیت:</strong> اوہم کا قانون، کرخوف کے قوانین، اور سیریز-پیرالل سرکٹس سکھانے کے لیے بہترین۔</li>
+  <li><strong>ڈیجیٹل سرکٹ پروٹوٹائپنگ:</strong> لاجک گیٹس، فلپ فلاپس، کاؤنٹرز، اور ملٹی پلیکسر بنانے اور جانچنے کے لیے استعمال ہوتا ہے۔</li>
+  <li><strong>اینالاگ سرکٹ تجربات:</strong> ایمپلیفائر ڈیزائن، ایکٹو فلٹرز، ٹائمرز، آسی لیٹرز، اور سگنل کنڈیشننگ سرکٹس شامل ہیں۔</li>
+  <li><strong>مائیکرو کنٹرولر پروجیکٹس:</strong> Arduino، 8051 یا AVR مائیکرو کنٹرولر کے بریڈ بورڈ ٹیسٹنگ کے لیے بنیادی پلیٹ فارم کے طور پر کام کرتا ہے۔</li>
+  <li><strong>ایمبیڈڈ سسٹمز سیکھنا:</strong> سینسرز، ڈسپلے اور ایکچیویٹرز کے ساتھ انٹرفیس کرنے کے قابل، ایمبیڈڈ سرکٹ ڈیزائن پریکٹس کے لیے۔</li>
+  <li><strong>STEM تعلیم اور ورکشاپس:</strong> اسکولوں، انجینئرنگ کالجز، پولی ٹیکنکس اور ہابی کلبوں میں عملی تربیت کے لیے استعمال ہوتا ہے۔</li>
+</ul>
+
+  </section>
+
+  <section id="ai">
+  <!-- English -->
+  <h2 data-lang="en">AI Applications</h2>
+<h2 data-lang="hi" class="lang-hidden">एआई अनुप्रयोग</h2>
+<h2 data-lang="ur" class="lang-hidden">اے آئی کی ایپلی کیشنز</h2>
+
+
+  <p data-lang="en">
+    While the ME1150 Breadboard Trainer is designed for general-purpose circuit prototyping, it plays a key role in building AI-enabled embedded systems, especially when paired with microcontrollers and sensors.
+  </p>
+
+<p data-lang="hi" class="lang-hidden">
+    ME1150 ब्रेडबोर्ड ट्रेनर सामान्य प्रयोजन सर्किट प्रोटोटाइपिंग के लिए डिज़ाइन किया गया है, लेकिन यह माइक्रोकंट्रोलर और सेंसर के साथ मिलकर एआई-समर्थित एम्बेडेड सिस्टम बनाने में महत्वपूर्ण भूमिका निभाता है।
+  </p>
+<p data-lang="ur" class="lang-hidden">
+    ME1150 بریڈ بورڈ ٹرینر کو عام مقصد کے سرکٹ پروٹوٹائپ کے لیے ڈیزائن کیا گیا ہے، لیکن یہ مائیکروکنٹرولرز اور سینسرز کے ساتھ مل کر AI-فعال ایمبیڈڈ سسٹمز بنانے میں اہم کردار ادا کرتا ہے۔
+  </p>
+
+
+  <h3 data-lang="en">Real-World Use Cases</h3>
+ <h3 data-lang="hi" class="lang-hidden">वास्तविक दुनिया के उपयोग</h3>
+<h3 data-lang="ur" class="lang-hidden">حقیقی دنیا کی مثالیں</h3>
+
+<ul data-lang="en">
+    <li><strong>Sensor Data Collection:</strong> Use the breadboard to interface temperature, motion, or light sensors and gather real-time data for AI model training.</li>
+    <li><strong>IoT + AI Integration:</strong> Connect to Wi-Fi-enabled microcontrollers (e.g., ESP32) to send sensor data to a cloud server for anomaly detection, predictive maintenance, or smart home automation.</li>
+    <li><strong>Edge AI Inference:</strong> Deploy small AI models using TensorFlow Lite or Edge Impulse on microcontrollers powered through the trainer to perform voice recognition, gesture classification, or environmental monitoring.</li>
+    <li><strong>Reinforcement Learning Control:</strong> Use actuators (motors, relays) on the breadboard for AI-driven hardware experiments, such as robotic control or smart lighting systems.</li>
+  </ul>
+<ul data-lang="hi" class="lang-hidden">
+    <li><strong>सेंसर डेटा संग्रह:</strong> तापमान, गति या प्रकाश सेंसर को इंटरफ़ेस करने के लिए ब्रेडबोर्ड का उपयोग करें और एआई मॉडल प्रशिक्षण के लिए वास्तविक समय का डेटा एकत्र करें।</li>
+    <li><strong>IoT + AI एकीकरण:</strong> वाई-फाई सक्षम माइक्रोकंट्रोलर (जैसे ESP32) से कनेक्ट करें और क्लाउड सर्वर पर डेटा भेजें जैसे स्मार्ट होम या पूर्वानुमान अनुरक्षण।</li>
+    <li><strong>एज एआई अनुमान:</strong> ट्रेनर से संचालित माइक्रोकंट्रोलर पर छोटे एआई मॉडल जैसे TensorFlow Lite या Edge Impulse का उपयोग करें।</li>
+    <li><strong>रीइन्फोर्समेंट लर्निंग नियंत्रण:</strong> मोटर या रिले जैसे एक्चुएटर्स को जोड़ें और एआई-आधारित हार्डवेयर प्रयोग करें जैसे रोबोट नियंत्रण या स्मार्ट लाइटिंग।</li>
+  </ul>
+
+<ul data-lang="ur" class="lang-hidden">
+    <li><strong>سینسر ڈیٹا کلیکشن:</strong> بریڈ بورڈ کے ذریعے درجہ حرارت، حرکت، یا روشنی کے سینسرز کو جوڑ کر حقیقی وقت کا ڈیٹا حاصل کریں تاکہ AI ماڈل تربیت دی جا سکے۔</li>
+    <li><strong>IoT + AI انضمام:</strong> وائی فائی مائیکروکنٹرولر (جیسے ESP32) کے ساتھ سینسر ڈیٹا کلاؤڈ سرور کو بھیجیں تاکہ سمارٹ ہوم، پیشگوئی کی مرمت یا اینوملی ڈٹیکشن کیا جا سکے۔</li>
+    <li><strong>ایج AI انفیرینس:</strong> بریڈ بورڈ پر چلنے والے مائیکروکنٹرولرز پر TensorFlow Lite یا Edge Impulse جیسے چھوٹے ماڈلز کا نفاذ کریں۔</li>
+    <li><strong>ری انفورسمنٹ لرننگ کنٹرول:</strong> موٹرز یا ریلے جیسے ایکچیویٹرز کو جوڑ کر AI پر مبنی ہارڈویئر تجربات کریں جیسے روبوٹ کنٹرول یا سمارٹ لائٹس۔</li>
+  </ul>
+  <h3 data-lang="en">Example Projects</h3>
+ <h3 data-lang="hi" class="lang-hidden">उदाहरण परियोजनाएं</h3>
+<h3 data-lang="ur" class="lang-hidden">مثال کے پروجیکٹس</h3>
+<ul data-lang="en">
+    <li><strong>Voice-Activated Light:</strong> Microphone + AI model to detect “ON”/“OFF” commands.</li>
+    <li><strong>Fall Detection Device:</strong> Accelerometer + TinyML model to classify human motion.</li>
+    <li><strong>Smart Fan Controller:</strong> DHT11 sensor + AI-based regression to adjust fan speed.</li>
+    <li><strong>Gas Leak Alert System:</strong> Gas sensor with AI pattern recognition for safety alerts.</li>
+  </ul>
+<ul data-lang="hi" class="lang-hidden">
+    <li><strong>वॉयस-एक्टिवेटेड लाइट:</strong> माइक्रोफोन + एआई मॉडल "ON"/"OFF" कमांड पहचानने के लिए।</li>
+    <li><strong>फॉल डिटेक्शन डिवाइस:</strong> एक्सेलेरोमीटर + TinyML मॉडल मानव गति को वर्गीकृत करता है।</li>
+    <li><strong>स्मार्ट फैन नियंत्रक:</strong> DHT11 सेंसर + एआई रिग्रेशन के साथ फैन की गति को समायोजित करता है।</li>
+    <li><strong>गैस लीक अलर्ट सिस्टम:</strong> गैस सेंसर + पैटर्न पहचान एआई के साथ सुरक्षा अलार्म देता है।</li>
+  </ul>
+  
+<ul data-lang="ur" class="lang-hidden">
+    <li><strong>وائس ایکٹیویٹڈ لائٹ:</strong> مائیکروفون + AI ماڈل "ON"/"OFF" کمانڈز کو پہچاننے کے لیے۔</li>
+    <li><strong>فال ڈیٹیکشن ڈیوائس:</strong> ایکسلیرومیٹر + TinyML ماڈل انسانی حرکت کو درجہ بند کرتا ہے۔</li>
+    <li><strong>سمارٹ فین کنٹرولر:</strong> DHT11 سینسر + AI رگریشن کے ساتھ فین کی رفتار کنٹرول کریں۔</li>
+    <li><strong>گیس لیک الرٹ سسٹم:</strong> گیس سینسر + AI پیٹرن ریکگنیشن کے ساتھ حفاظتی الرٹ دے۔</li>
+  </ul>
+
+  
+
+  <p data-lang="en">
+    <strong>Note:</strong> Combine the ME1150 with a microcontroller (Arduino, ESP32, or Raspberry Pi Pico), sensors, and a laptop with ML tools like <code>TensorFlow Lite</code> or <code>Edge Impulse</code> to develop hands-on AI projects.
+  </p>
+
+  <p data-lang="hi" class="lang-hidden">
+    <strong>नोट:</strong> ME1150 को माइक्रोकंट्रोलर (Arduino, ESP32, या Raspberry Pi Pico), सेंसर और <code>TensorFlow Lite</code> या <code>Edge Impulse</code> जैसे एमएल टूल्स के साथ जोड़कर प्रैक्टिकल एआई प्रोजेक्ट्स बनाएं।
+  </p> 
+
+  <p data-lang="ur" class="lang-hidden">
+    <strong>نوٹ:</strong> ME1150 کو مائیکروکنٹرولر (Arduino، ESP32 یا Raspberry Pi Pico)، سینسرز، اور <code>TensorFlow Lite</code> یا <code>Edge Impulse</code> جیسے ML ٹولز کے ساتھ جوڑ کر ہاتھ سے بنائے گئے AI پروجیکٹس تیار کریں۔
+  </p>
+</section>
+
+</main>
+
+<footer>
+  <p data-lang="en">
+    Developer: Akash Gupta | 
+    <a href="https://www.linkedin.com/in/saysky2" target="_blank">LinkedIn</a> | 
+    <a href="https://github.com/saysky2" target="_blank">GitHub</a>
+  </p>
+  <p data-lang="en">
+    Under the Supervision of <strong>Dr. Shan E Fatima</strong>, Assistant Professor, Department of CSE
+  </p>
+
+  <p data-lang="hi" class="lang-hidden">
+    डेवलपर: आकाश गुप्ता | 
+    <a href="https://www.linkedin.com/in/saysky2" target="_blank">LinkedIn</a> | 
+    <a href="https://github.com/saysky2" target="_blank">GitHub</a>
+  </p>
+  <p data-lang="hi" class="lang-hidden">
+    <strong>डॉ. शान ई. फातिमा</strong>, सहायक प्रोफेसर, कंप्यूटर साइंस एंड इंजीनियरिंग विभाग के पर्यवेक्षण में
+  </p>
+
+  <p data-lang="ur" class="lang-hidden">
+    ڈیولپر: آکاش گپتا | 
+    <a href="https://www.linkedin.com/in/saysky2" target="_blank">LinkedIn</a> | 
+    <a href="https://github.com/saysky2" target="_blank">GitHub</a>
+  </p>
+  <p data-lang="ur" class="lang-hidden">
+    <strong>ڈاکٹر شان ای فاطمہ</strong>، اسسٹنٹ پروفیسر، ڈیپارٹمنٹ آف سی ایس ای کی نگرانی میں
+  </p>
+</footer>
+
+
 </body>
 </html>

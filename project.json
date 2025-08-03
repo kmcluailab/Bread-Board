@@ -1,0 +1,37 @@
+{
+  "project": {
+    "name": "ME1150 Breadboard Trainer – Static Web Guide",
+    "description": "A single-page static educational website explaining the ME1150 General-Purpose Breadboard Trainer with built-in power supplies, its components, applications, and AI integrations.",
+    "version": "1.0.0",
+    "author": {
+      "name": "Akash Gupta",
+      "github": "https://github.com/saysky2",
+      "linkedin": "https://www.linkedin.com/in/saysky2"
+    },
+    "contributors": [],
+    "files": [
+      "index.html",
+      "README.md",
+      "project.json"
+    ],
+    "features": [
+      "Overview of ME1150 trainer kit",
+      "Specifications of breadboard and power supply",
+      "Setup instructions and usage tips",
+      "Real-world applications and educational circuits",
+      "AI integration examples with sensors and microcontrollers"
+    ],
+    "technologies": [
+      "HTML5",
+      "CSS3"
+    ],
+    "hosting": {
+      "recommended": [
+        "GitHub Pages",
+        "Netlify",
+        "Vercel"
+      ]
+    },
+    "license": "MIT"
+  }
+}
